@@ -1,0 +1,49 @@
+{
+  "project_info": {
+    "project_number": "210007714281",
+    "firebase_url": "https://serviceapp-63f27-default-rtdb.firebaseio.com",
+    "project_id": "serviceapp-63f27",
+    "storage_bucket": "serviceapp-63f27.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:210007714281:android:1ff21d1e5a23b74d368378",
+        "android_client_info": {
+          "package_name": "com.bookpalace.app"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKbvz13OXDr10lSXoon-UbyLLMli6h9YA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:210007714281:android:30191812039b4a97368378",
+        "android_client_info": {
+          "package_name": "com.serviceapp.com"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBKbvz13OXDr10lSXoon-UbyLLMli6h9YA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

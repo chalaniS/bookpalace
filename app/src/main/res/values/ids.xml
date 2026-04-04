@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <item name="searchView" type="id" />
+    <item name="progressBar" type="id" />
+    <item name="emptyState" type="id" />
+    <item name="recyclerViewBooks" type="id" />
+    <item name="btnGoToReturn" type="id" />
+    <item name="btnGoToFines" type="id" />
+</resources>

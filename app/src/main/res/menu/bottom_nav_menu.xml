@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <item
+        android:id="@+id/nav_home"
+        android:icon="@drawable/bottom_btn1"
+        android:title="Home" />
+
+    <item
+        android:id="@+id/nav_rec"
+        android:icon="@drawable/bottom_btn2"
+        android:title="Books" />
+
+    <item
+        android:id="@+id/nav_borrowbooklist"
+        android:icon="@drawable/bottom_btn3"
+        android:title="Profile" />
+    <item
+        android:id="@+id/nav_profile"
+        android:icon="@drawable/bottom_btn4"
+        android:title="Profile" />
+
+</menu>
