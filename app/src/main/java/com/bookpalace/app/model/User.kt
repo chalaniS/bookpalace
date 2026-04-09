@@ -1,19 +1,19 @@
 package com.bookpalace.app.model
 
-import java.time.LocalDateTime
+import java.io.Serializable
 
 enum class UserRole {
     STUDENT, LIBRARIAN, OWNER
 }
 
 data class User(
-    val id: String,
-    val name: String,
-    val email: String,
-    val passwordHash: String,
-    val role: UserRole,
-    val phone: String,
-    val address: String,
-    val registeredAt: LocalDateTime = LocalDateTime.now(),
-    val isActive: Boolean = true
-)
+    var id: String = "",
+    var name: String = "",
+    var email: String = "",
+    var passwordHash: String = "",
+    var role: UserRole = UserRole.STUDENT,
+    var phone: String = "",
+    var address: String = "",
+    var registeredAt: String = "",
+    var isActive: Boolean = true
+) : Serializable

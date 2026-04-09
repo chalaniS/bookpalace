@@ -11,6 +11,7 @@
     <TextView
         android:id="@+id/bookTitle"
         android:textSize="18sp"
+        android:text="Book Title"
         android:textStyle="bold"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
@@ -18,12 +19,14 @@
     <TextView
         android:id="@+id/bookAuthor"
         android:textSize="14sp"
+        android:text="Book Author"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
     <TextView
         android:id="@+id/bookPublisher"
         android:textSize="14sp"
+        android:text="Book Publisher"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
@@ -32,10 +35,12 @@
         android:textSize="14sp"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+
     <TextView
         android:id="@+id/bookCategory"
         android:textColor="#008000"
         android:textSize="14sp"
+        android:text="Book Title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
 
@@ -43,7 +48,33 @@
         android:id="@+id/bookAvailability"
         android:textColor="#008000"
         android:textSize="14sp"
+        android:text="Book Availability"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"/>
+
+    <!-- Buttons Layout -->
+    <LinearLayout
+        android:orientation="horizontal"
+        android:layout_marginTop="10dp"
+        android:gravity="end"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <Button
+            android:id="@+id/btnUpdate"
+            android:text="Update"
+            android:layout_marginEnd="8dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+        <Button
+            android:id="@+id/btnDelete"
+            android:text="Delete"
+            android:backgroundTint="#FF0000"
+            android:textColor="#FFFFFF"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"/>
+
+    </LinearLayout>
 
 </LinearLayout>

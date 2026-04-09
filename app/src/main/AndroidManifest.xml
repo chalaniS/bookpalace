@@ -11,7 +11,12 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Bookpalace">
-
+        <activity
+            android:name=".MainActivity"
+            android:exported="false" />
+        <activity
+            android:name=".ui.librarian.LibrarianMainFragment"
+            android:exported="false" />
         <activity
             android:name=".ui.WelcomePage"
             android:exported="true"
@@ -25,15 +30,13 @@
         </activity>
         <activity
             android:name=".ui.SignupActivity"
-            android:exported="false"/>
-
+            android:exported="false" />
         <activity
             android:name=".ui.LoginActivity"
-            android:exported="false"/>
-
+            android:exported="false" />
         <activity
             android:name=".ui.DashboardActivity"
-            android:exported="false"/>
+            android:exported="false" />
     </application>
 
 </manifest>

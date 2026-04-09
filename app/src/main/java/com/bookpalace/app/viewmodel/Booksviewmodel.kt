@@ -4,38 +4,68 @@ import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import com.bookpalace.app.model.Book
+import com.bookpalace.app.repositories.BookRepository
+import com.google.firebase.database.*
 
+class BooksViewModel : ViewModel(), BookRepository {
 
-class BooksViewModel : ViewModel() {
+    private val database: DatabaseReference =
+        FirebaseDatabase.getInstance().getReference("books")
 
-    private val _allBooks = mutableListOf<Book>()
+    private val _allBooks = MutableLiveData<List<Book>>()
+    val allBooks: LiveData<List<Book>> get() = _allBooks
 
-    private val _books = MutableLiveData<List<Book>>()
-    val books: LiveData<List<Book>> = _books
+    private var fullBookList = listOf<Book>()
 
-    private val _isLoading = MutableLiveData<Boolean>()
-    val isLoading: LiveData<Boolean> = _isLoading
-
-    fun setBooks(books: List<Book>) {
-        _allBooks.clear()
-        _allBooks.addAll(books)
-        _books.value = books
-        _isLoading.value = false
+    init {
+        observeBooks()
     }
 
-    fun search(query: String) {
-        if (query.isBlank()) {
-            _books.value = _allBooks
-        } else {
-            _books.value = _allBooks.filter {
-                it.title.contains(query, ignoreCase = true) ||
-                        it.author.contains(query, ignoreCase = true) ||
-                        it.isbn.contains(query, ignoreCase = true)
+    private fun observeBooks() {
+        database.addValueEventListener(object : ValueEventListener {
+            override fun onDataChange(snapshot: DataSnapshot) {
+                val bookList = mutableListOf<Book>()
+                for (data in snapshot.children) {
+                    val book = data.getValue(Book::class.java)
+                    book?.let { bookList.add(it) }
+                }
+                fullBookList = bookList
+                _allBooks.value = bookList
             }
+
+            override fun onCancelled(error: DatabaseError) {}
+        })
+    }
+
+    override fun getBooks(): LiveData<List<Book>> = allBooks
+
+    override fun addBook(book: Book) {
+        val id = database.push().key
+        book.id = id
+        id?.let {
+            database.child(it).setValue(book)
         }
     }
 
-    fun setLoading(loading: Boolean) {
-        _isLoading.value = loading
+    override fun updateBook(book: Book) {
+        book.id?.let {
+            database.child(it).setValue(book)
+        }
+    }
+
+    override fun deleteBook(bookId: String) {
+        database.child(bookId).removeValue()
+    }
+
+    fun searchBooks(query: String) {
+        if (query.isEmpty()) {
+            _allBooks.value = fullBookList
+        } else {
+            val filteredList = fullBookList.filter {
+                it.title?.contains(query, ignoreCase = true) == true ||
+                it.author?.contains(query, ignoreCase = true) == true
+            }
+            _allBooks.value = filteredList
+        }
     }
 }

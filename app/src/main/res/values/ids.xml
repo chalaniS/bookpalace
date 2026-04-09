@@ -6,4 +6,5 @@
     <item name="recyclerViewBooks" type="id" />
     <item name="btnGoToReturn" type="id" />
     <item name="btnGoToFines" type="id" />
+    <item name="fragment_container" type="id" />
 </resources>

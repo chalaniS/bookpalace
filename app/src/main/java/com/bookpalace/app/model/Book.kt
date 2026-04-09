@@ -1,21 +1,26 @@
 package com.bookpalace.app.model
 
-import java.time.LocalDateTime
+class Book {
+    var id: String? = null
+    var title: String? = null
+    var author: String? = null
+    var publisher: String? = null
+    var year: String? = null
+    var category: String? = null
+    var availability: String? = null
 
-data class Book(
-    val id: String,
-    val title: String,
-    val author: String,
-    val isbn: String,
-    val categoryId: String,
-    val publisher: String,
-    val publishedYear: Int,
-    val totalCopies: Int,
-    val availableCopies: Int,
-    val location: String,
-    val coverImageUrl: String? = null,
-    val description: String? = null,
-    val addedBy: String,
-    val addedAt: LocalDateTime = LocalDateTime.now(),
-    val isDeleted: Boolean = false
-)
+    constructor()
+
+    constructor(
+        id: String?, title: String?, author: String?, publisher: String?,
+        year: String?, category: String?, availability: String?
+    ) {
+        this.id = id
+        this.title = title
+        this.author = author
+        this.publisher = publisher
+        this.year = year
+        this.category = category
+        this.availability = availability
+    }
+}
