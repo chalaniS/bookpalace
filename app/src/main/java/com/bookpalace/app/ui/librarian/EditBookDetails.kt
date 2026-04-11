@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.*
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import com.bookpalace.app.R
 import com.bookpalace.app.model.Book
 import com.bookpalace.app.viewmodel.BooksViewModel
@@ -19,7 +19,8 @@ class EditBookFragment : DialogFragment() {
     private lateinit var spAvailability: Spinner
     private lateinit var btnUpdate: Button
 
-    private lateinit var booksViewModel: BooksViewModel
+    // Use activityViewModels to share the same instance with the main fragment and AddBookDetail
+    private val booksViewModel: BooksViewModel by activityViewModels()
 
     private var bookId: String? = null
 
@@ -46,8 +47,6 @@ class EditBookFragment : DialogFragment() {
         etCategory = view.findViewById(R.id.etCategory)
         spAvailability = view.findViewById(R.id.spAvailability)
         btnUpdate = view.findViewById(R.id.btnUpdateBook)
-
-        booksViewModel = ViewModelProvider(this)[BooksViewModel::class.java]
 
         setupSpinner()
         loadBookData()

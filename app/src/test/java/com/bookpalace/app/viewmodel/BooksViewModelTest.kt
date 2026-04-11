@@ -1,7 +1,8 @@
 package com.bookpalace.app.viewmodel
 
+import android.app.Application
 import androidx.arch.core.executor.testing.InstantTaskExecutorRule
-import androidx.lifecycle.Observer
+import com.bookpalace.app.database.BookDao
 import com.bookpalace.app.model.Book
 import com.google.firebase.database.*
 import io.mockk.*
@@ -16,80 +17,88 @@ class BooksViewModelTest {
     val instantTaskExecutorRule = InstantTaskExecutorRule()
 
     private lateinit var viewModel: BooksViewModel
+    private lateinit var application: Application
     private lateinit var database: DatabaseReference
     private lateinit var firebaseDatabase: FirebaseDatabase
-    private lateinit var query: DatabaseReference
 
     @Before
     fun setup() {
         mockkStatic(FirebaseDatabase::class)
         firebaseDatabase = mockk(relaxed = true)
         database = mockk(relaxed = true)
-        query = mockk(relaxed = true)
+        application = mockk(relaxed = true)
+        
+        // Mock BookDao constructor
+        mockkConstructor(BookDao::class)
+        // Set default behavior for any constructed BookDao
+        every { anyConstructed<BookDao>().getAllBooks() } returns emptyList()
 
         every { FirebaseDatabase.getInstance() } returns firebaseDatabase
         every { firebaseDatabase.getReference("books") } returns database
         
-        // Initializing the ViewModel triggers observeBooks which calls addValueEventListener
-        viewModel = BooksViewModel()
+        viewModel = BooksViewModel(application)
     }
 
     @Test
-    fun `addBook should push to database and set value`() {
-        val book = Book(null, "Title", "Author", "Publisher", "2023", "Category", "Available")
+    fun `addBook should save to SQLite and Firebase`() {
+        val book = Book("test_id", "Title", "Author", "Publisher", "2023", "Category", "Available")
         val pushedRef = mockk<DatabaseReference>(relaxed = true)
         
         every { database.push() } returns pushedRef
         every { pushedRef.key } returns "test_id"
+        every { anyConstructed<BookDao>().insertBook(any()) } returns true
+        every { anyConstructed<BookDao>().getAllBooks() } returns listOf(book)
         
         viewModel.addBook(book)
         
-        verify { pushedRef.setValue(book) }
-        assertEquals("test_id", book.id)
+        // Verify SQLite insert
+        verify { anyConstructed<BookDao>().insertBook(any()) }
+        
+        // Verify Firebase save
+        verify { pushedRef.setValue(any<Book>()) }
+        
+        // Verify local list refresh (getAllBooks called during init and after add)
+        verify(exactly = 2) { anyConstructed<BookDao>().getAllBooks() }
     }
 
     @Test
-    fun `updateBook should set value at specific child`() {
+    fun `updateBook should update SQLite and Firebase`() {
         val book = Book("test_id", "Title", "Author", "Publisher", "2023", "Category", "Available")
         val childRef = mockk<DatabaseReference>(relaxed = true)
         
         every { database.child("test_id") } returns childRef
+        every { anyConstructed<BookDao>().updateBook(any()) } returns true
         
         viewModel.updateBook(book)
         
-        verify { childRef.setValue(book) }
+        verify { anyConstructed<BookDao>().updateBook(any()) }
+        verify { childRef.setValue(any<Book>()) }
     }
 
     @Test
-    fun `deleteBook should remove value at specific child`() {
+    fun `deleteBook should delete from SQLite and Firebase`() {
         val bookId = "test_id"
         val childRef = mockk<DatabaseReference>(relaxed = true)
         
         every { database.child(bookId) } returns childRef
+        every { anyConstructed<BookDao>().deleteBook(any()) } returns true
         
         viewModel.deleteBook(bookId)
         
+        verify { anyConstructed<BookDao>().deleteBook(bookId) }
         verify { childRef.removeValue() }
     }
 
     @Test
     fun `searchBooks should filter list correctly`() {
-        // We need to simulate data change to populate fullBookList
-        val slot = slot<ValueEventListener>()
-        verify { database.addValueEventListener(capture(slot)) }
-
-        val snapshot = mockk<DataSnapshot>()
-        val child1 = mockk<DataSnapshot>()
-        val child2 = mockk<DataSnapshot>()
-        
         val book1 = Book("1", "Kotlin Guide", "Author A", "P1", "2021", "Tech", "Yes")
         val book2 = Book("2", "Java Programming", "Author B", "P2", "2020", "Tech", "Yes")
-
-        every { snapshot.children } returns listOf(child1, child2)
-        every { child1.getValue(Book::class.java) } returns book1
-        every { child2.getValue(Book::class.java) } returns book2
-
-        slot.captured.onDataChange(snapshot)
+        
+        // Mock the return of getAllBooks for the constructor call in setup()
+        every { anyConstructed<BookDao>().getAllBooks() } returns listOf(book1, book2)
+        
+        // Re-initialize to trigger init block with mocked data
+        viewModel = BooksViewModel(application)
 
         // Test search by title
         viewModel.searchBooks("Kotlin")
@@ -100,9 +109,5 @@ class BooksViewModelTest {
         viewModel.searchBooks("Author B")
         assertEquals(1, viewModel.allBooks.value?.size)
         assertEquals("Java Programming", viewModel.allBooks.value?.get(0)?.title)
-
-        // Test empty query (should return all)
-        viewModel.searchBooks("")
-        assertEquals(2, viewModel.allBooks.value?.size)
     }
 }

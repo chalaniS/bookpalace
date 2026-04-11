@@ -11,7 +11,7 @@ import android.widget.EditText
 import android.widget.Spinner
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
-import androidx.lifecycle.ViewModelProvider
+import androidx.fragment.app.activityViewModels
 import com.bookpalace.app.R
 import com.bookpalace.app.model.Book
 import com.bookpalace.app.viewmodel.BooksViewModel
@@ -25,7 +25,8 @@ class AddBookDetail : DialogFragment() {
     private var spAvailability: Spinner? = null
     private var btnAddBook: Button? = null
 
-    private lateinit var viewModel: BooksViewModel
+    // Using activityViewModels to share the same instance with the main fragment
+    private val viewModel: BooksViewModel by activityViewModels()
 
     override fun onStart() {
         super.onStart()
@@ -48,8 +49,6 @@ class AddBookDetail : DialogFragment() {
         etCategory = view.findViewById(R.id.etCategory)
         spAvailability = view.findViewById(R.id.spAvailability)
         btnAddBook = view.findViewById(R.id.btnAddBook)
-
-        viewModel = ViewModelProvider(this)[BooksViewModel::class.java]
 
         val availability = arrayOf("Available", "Not Available")
         val adapter = ArrayAdapter(
@@ -79,7 +78,10 @@ class AddBookDetail : DialogFragment() {
             return
         }
 
+        // Create book object. ID will be generated in ViewModel for sync consistency.
         val book = Book(null, title, author, publisher, year, category, availability)
+        
+        // This will save to both SQLite (offline) and Firebase (online)
         viewModel.addBook(book)
 
         Toast.makeText(context, "Book Added Successfully", Toast.LENGTH_SHORT).show()

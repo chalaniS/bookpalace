@@ -1,14 +1,17 @@
 package com.bookpalace.app.viewmodel
 
+import android.app.Application
+import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
-import androidx.lifecycle.ViewModel
+import com.bookpalace.app.database.BookDao
 import com.bookpalace.app.model.Book
 import com.bookpalace.app.repositories.BookRepository
 import com.google.firebase.database.*
 
-class BooksViewModel : ViewModel(), BookRepository {
+class BooksViewModel(application: Application) : AndroidViewModel(application), BookRepository {
 
+    private val bookDao = BookDao(application)
     private val database: DatabaseReference =
         FirebaseDatabase.getInstance().getReference("books")
 
@@ -22,6 +25,11 @@ class BooksViewModel : ViewModel(), BookRepository {
     }
 
     private fun observeBooks() {
+        // Load offline data initially
+        fullBookList = bookDao.getAllBooks()
+        _allBooks.value = fullBookList
+
+        // Sync with Firebase
         database.addValueEventListener(object : ValueEventListener {
             override fun onDataChange(snapshot: DataSnapshot) {
                 val bookList = mutableListOf<Book>()
@@ -29,8 +37,12 @@ class BooksViewModel : ViewModel(), BookRepository {
                     val book = data.getValue(Book::class.java)
                     book?.let { bookList.add(it) }
                 }
-                fullBookList = bookList
-                _allBooks.value = bookList
+                
+                // If Firebase has data, use it and update local cache if needed
+                if (bookList.isNotEmpty()) {
+                    fullBookList = bookList
+                    _allBooks.value = bookList
+                }
             }
 
             override fun onCancelled(error: DatabaseError) {}
@@ -40,21 +52,48 @@ class BooksViewModel : ViewModel(), BookRepository {
     override fun getBooks(): LiveData<List<Book>> = allBooks
 
     override fun addBook(book: Book) {
-        val id = database.push().key
+        // Generate a unique ID using Firebase push key
+        val pushedRef = database.push()
+        val id = pushedRef.key ?: System.currentTimeMillis().toString()
         book.id = id
-        id?.let {
-            database.child(it).setValue(book)
-        }
+
+        // 1. Save to SQLite for offline access
+        bookDao.insertBook(book)
+
+        // 2. Save to Firebase for online sync
+        pushedRef.setValue(book)
+
+        // 3. Update local list immediately
+        refreshLocalBooks()
     }
 
     override fun updateBook(book: Book) {
-        book.id?.let {
-            database.child(it).setValue(book)
+        book.id?.let { id ->
+            // 1. Update SQLite
+            bookDao.updateBook(book)
+            
+            // 2. Update Firebase
+            database.child(id).setValue(book)
+            
+            // 3. Update local list
+            refreshLocalBooks()
         }
     }
 
     override fun deleteBook(bookId: String) {
+        // 1. Delete from SQLite
+        bookDao.deleteBook(bookId)
+        
+        // 2. Delete from Firebase
         database.child(bookId).removeValue()
+        
+        // 3. Update local list
+        refreshLocalBooks()
+    }
+
+    private fun refreshLocalBooks() {
+        fullBookList = bookDao.getAllBooks()
+        _allBooks.value = fullBookList
     }
 
     fun searchBooks(query: String) {

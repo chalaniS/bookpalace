@@ -4,7 +4,7 @@ import android.os.Bundle
 import android.view.*
 import android.widget.SearchView
 import androidx.fragment.app.Fragment
-import androidx.fragment.app.viewModels
+import androidx.fragment.app.activityViewModels
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.bookpalace.app.adapter.BookAdapter
 import com.bookpalace.app.databinding.FragmentLibrarianMainBinding
@@ -15,7 +15,8 @@ class LibrarianMainFragment : Fragment() {
     private var _binding: FragmentLibrarianMainBinding? = null
     private val binding get() = _binding!!
 
-    private val viewModel: BooksViewModel by viewModels()
+    // Use activityViewModels to share data between fragments
+    private val viewModel: BooksViewModel by activityViewModels()
     private lateinit var adapter: BookAdapter
 
     override fun onCreateView(
@@ -43,7 +44,7 @@ class LibrarianMainFragment : Fragment() {
                 dialog.show(parentFragmentManager, "EditBook")
             },
             onDeleteClick = { book ->
-                //call delete function in bookviewmodel
+                // Delete from both SQLite and Firebase
                 book.id?.let { viewModel.deleteBook(it) }
             }
         )

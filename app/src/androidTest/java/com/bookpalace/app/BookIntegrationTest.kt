@@ -11,6 +11,7 @@ import org.hamcrest.Matchers.allOf
 import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import android.widget.EditText
 
 @RunWith(AndroidJUnit4::class)
 class BookIntegrationTest {
@@ -39,8 +40,9 @@ class BookIntegrationTest {
 
     @Test
     fun testSearchBookFlow() {
-        // Type search query in SearchView
-        onView(withId(R.id.searchView)).perform(typeText("Integration Test Book"), pressImeActionButton())
+        // SearchView is a wrapper, so we find the internal EditText to type
+        onView(isAssignableFrom(EditText::class.java))
+            .perform(typeText("Integration Test Book"), pressImeActionButton())
 
         // Verify that the list is updated (at least the RecyclerView is still displayed)
         onView(withId(R.id.recyclerViewBooks)).check(matches(isDisplayed()))
