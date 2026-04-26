@@ -1,6 +1,5 @@
 package com.bookpalace.app.ui.librarian
 
-import android.R
 import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
@@ -12,11 +11,12 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.LinearLayoutManager
+import com.bookpalace.app.R
 import com.bookpalace.app.adapter.StudentNotificationAdapter
 import com.bookpalace.app.databinding.FragmentSendNotificationBinding
 import com.bookpalace.app.repositories.NotificationResult
 import com.bookpalace.app.viewmodel.SendNotificationViewModel
-import com.bookpalace.app.viewmodel.StudentSelectionItem
+import com.bookpalace.app.viewmodel.RecipientSelectionItem
 import com.google.android.material.dialog.MaterialAlertDialogBuilder
 import com.google.android.material.snackbar.Snackbar
 import dagger.hilt.android.AndroidEntryPoint
@@ -30,7 +30,7 @@ class SendNotificationFragment : Fragment() {
 
     private val viewModel: SendNotificationViewModel by viewModels()
 
-    private lateinit var studentAdapter: StudentNotificationAdapter
+    private lateinit var recipientAdapter: StudentNotificationAdapter
 
     // ---------- Lifecycle ----------
 
@@ -67,12 +67,12 @@ class SendNotificationFragment : Fragment() {
     }
 
     private fun setupRecyclerView() {
-        studentAdapter = StudentNotificationAdapter { studentId, isChecked ->
-            viewModel.onStudentChecked(studentId, isChecked)
+        recipientAdapter = StudentNotificationAdapter { userId, isChecked ->
+            viewModel.onRecipientChecked(userId, isChecked)
         }
 
         binding.rvStudents.apply {
-            adapter = studentAdapter
+            adapter = recipientAdapter
             layoutManager = LinearLayoutManager(requireContext())
             setHasFixedSize(false)
         }
@@ -113,12 +113,12 @@ class SendNotificationFragment : Fragment() {
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
                 viewModel.uiState.collect { state ->
-                    renderStudentList(state.filteredStudents)
+                    renderRecipientList(state.filteredRecipients)
                     renderSelectedCount(state.selectedCount)
                     renderSelectAllCheckbox(state.allSelected)
-                    renderLoading(state.isLoadingStudents, state.isSending)
+                    renderLoading(state.isLoadingRecipients, state.isSending)
                     renderFabState(state.canSend)
-                    renderEmptyState(state.filteredStudents.isEmpty() && !state.isLoadingStudents)
+                    renderEmptyState(state.filteredRecipients.isEmpty() && !state.isLoadingRecipients)
 
                     // Handle errors
                     state.error?.let { error ->
@@ -138,12 +138,12 @@ class SendNotificationFragment : Fragment() {
 
     // ---------- Render helpers ----------
 
-    private fun renderStudentList(items: List<StudentSelectionItem>) {
-        studentAdapter.submitList(items)
+    private fun renderRecipientList(items: List<RecipientSelectionItem>) {
+        recipientAdapter.submitList(items)
     }
 
     private fun renderSelectedCount(count: Int) {
-        binding.tvSelectedCount.text = "$count student${if (count != 1) "s" else ""} selected"
+        binding.tvSelectedCount.text = "$count user${if (count != 1) "s" else ""} selected"
     }
 
     private fun renderSelectAllCheckbox(allSelected: Boolean) {
@@ -155,10 +155,10 @@ class SendNotificationFragment : Fragment() {
         }
     }
 
-    private fun renderLoading(isLoadingStudents: Boolean, isSending: Boolean) {
+    private fun renderLoading(isLoadingRecipients: Boolean, isSending: Boolean) {
         binding.loadingOverlay.visibility = if (isSending) View.VISIBLE else View.GONE
-        // Optionally show shimmer for student list loading
-        binding.rvStudents.alpha = if (isLoadingStudents) 0.4f else 1.0f
+        // Optionally show shimmer for recipient list loading
+        binding.rvStudents.alpha = if (isLoadingRecipients) 0.4f else 1.0f
     }
 
     private fun renderFabState(canSend: Boolean) {
@@ -178,7 +178,7 @@ class SendNotificationFragment : Fragment() {
         MaterialAlertDialogBuilder(requireContext())
             .setTitle("Send Notification")
             .setMessage(
-                "Send \"${state.title}\" to ${state.selectedCount} student(s)?"
+                "Send \"${state.title}\" to ${state.selectedCount} user(s)?"
             )
             .setPositiveButton("Send") { _, _ -> viewModel.sendNotification() }
             .setNegativeButton("Cancel", null)
@@ -190,7 +190,7 @@ class SendNotificationFragment : Fragment() {
     private fun handleSendResult(result: NotificationResult) {
         when (result) {
             is NotificationResult.Success -> {
-                showSnackbar("✓ Notification sent to ${result.sentCount} student(s).")
+                showSnackbar("✓ Notification sent to ${result.sentCount} user(s).")
                 clearForm()
             }
             is NotificationResult.PartialSuccess -> {
@@ -217,7 +217,7 @@ class SendNotificationFragment : Fragment() {
     private fun showSnackbar(message: String, isError: Boolean = false) {
         val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         if (isError) {
-            snackbar.setBackgroundTint(requireContext().getColor(R.color.holo_red_dark))
+            snackbar.setBackgroundTint(requireContext().getColor(android.R.color.holo_red_dark))
         }
         snackbar.show()
     }

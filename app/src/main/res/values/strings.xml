@@ -3,4 +3,7 @@
     <!-- TODO: Remove or change this placeholder text -->
     <string name="hello_blank_fragment">Hello blank fragment</string>
     <string name="Update_profile">Update profile</string>
+    <string name="status_available">Available</string>
+    <string name="status_not_available">Not Available</string>
+    <string name="book_updated_successfully">Book Updated Successfully</string>
 </resources>

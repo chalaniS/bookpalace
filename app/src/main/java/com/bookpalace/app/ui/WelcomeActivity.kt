@@ -11,6 +11,7 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.content.ContextCompat
 import com.bookpalace.app.R
+import com.google.firebase.auth.FirebaseAuth
 
 class WelcomePage : AppCompatActivity() {
 
@@ -28,6 +29,14 @@ class WelcomePage : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        // Check if user is already logged in
+        if (FirebaseAuth.getInstance().currentUser != null) {
+            val intent = Intent(this, DashboardActivity::class.java)
+            startActivity(intent)
+            finish()
+            return
+        }
 
         // Connect XML layout
         setContentView(R.layout.welcome_page)

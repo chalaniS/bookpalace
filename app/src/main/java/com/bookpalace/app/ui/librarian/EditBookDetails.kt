@@ -19,7 +19,6 @@ class EditBookFragment : DialogFragment() {
     private lateinit var spAvailability: Spinner
     private lateinit var btnUpdate: Button
 
-    // Use activityViewModels to share the same instance with the main fragment and AddBookDetail
     private val booksViewModel: BooksViewModel by activityViewModels()
 
     private var bookId: String? = null
@@ -59,7 +58,10 @@ class EditBookFragment : DialogFragment() {
     }
 
     private fun setupSpinner() {
-        val availabilityOptions = arrayOf("Available", "Not Available")
+        val availabilityOptions = arrayOf(
+            getString(R.string.status_available),
+            getString(R.string.status_not_available)
+        )
         val adapter = ArrayAdapter(
             requireContext(),
             android.R.layout.simple_spinner_dropdown_item,
@@ -78,7 +80,7 @@ class EditBookFragment : DialogFragment() {
             etCategory.setText(it.getString("category"))
 
             val availability = it.getString("availability")
-            if (availability == "Available") {
+            if (availability == getString(R.string.status_available)) {
                 spAvailability.setSelection(0)
             } else {
                 spAvailability.setSelection(1)
@@ -98,7 +100,7 @@ class EditBookFragment : DialogFragment() {
         )
 
         booksViewModel.updateBook(updatedBook)
-        Toast.makeText(requireContext(), "Book Updated Successfully", Toast.LENGTH_SHORT).show()
+        Toast.makeText(requireContext(), getString(R.string.book_updated_successfully), Toast.LENGTH_SHORT).show()
         dismiss()
     }
 

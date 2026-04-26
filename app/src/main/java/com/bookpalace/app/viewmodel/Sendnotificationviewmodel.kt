@@ -15,29 +15,29 @@ import javax.inject.Inject
 // ---------- UI State ----------
 
 data class SendNotificationUiState(
-    val isLoadingStudents: Boolean = false,
+    val isLoadingRecipients: Boolean = false,
     val isSending: Boolean = false,
-    val students: List<StudentSelectionItem> = emptyList(),
-    val filteredStudents: List<StudentSelectionItem> = emptyList(),
+    val recipients: List<RecipientSelectionItem> = emptyList(),
+    val filteredRecipients: List<RecipientSelectionItem> = emptyList(),
     val title: String = "",
     val message: String = "",
     val searchQuery: String = "",
     val error: String? = null,
     val sendResult: NotificationResult? = null
 ) {
-    val selectedStudents: List<StudentSelectionItem>
-        get() = students.filter { it.isSelected }
+    val selectedRecipients: List<RecipientSelectionItem>
+        get() = recipients.filter { it.isSelected }
 
-    val selectedCount: Int get() = selectedStudents.size
+    val selectedCount: Int get() = selectedRecipients.size
 
     val allSelected: Boolean
-        get() = students.isNotEmpty() && students.all { it.isSelected }
+        get() = recipients.isNotEmpty() && recipients.all { it.isSelected }
 
     val canSend: Boolean
         get() = title.isNotBlank() && message.isNotBlank() && selectedCount > 0 && !isSending
 }
 
-data class StudentSelectionItem(
+data class RecipientSelectionItem(
     val user: User,
     val isSelected: Boolean = false
 )
@@ -56,32 +56,32 @@ class SendNotificationViewModel @Inject constructor(
     private val _searchQuery = MutableStateFlow("")
 
     init {
-        loadStudents()
+        loadRecipients()
         observeSearch()
     }
 
     // ---------- Load ----------
 
-    fun loadStudents() {
+    fun loadRecipients() {
         viewModelScope.launch {
-            _uiState.update { it.copy(isLoadingStudents = true, error = null) }
+            _uiState.update { it.copy(isLoadingRecipients = true, error = null) }
 
-            repository.fetchAllStudents()
+            repository.fetchAllRecipients()
                 .onSuccess { users ->
-                    val items = users.map { StudentSelectionItem(it) }
+                    val items = users.map { RecipientSelectionItem(it) }
                     _uiState.update {
                         it.copy(
-                            isLoadingStudents = false,
-                            students = items,
-                            filteredStudents = items
+                            isLoadingRecipients = false,
+                            recipients = items,
+                            filteredRecipients = items
                         )
                     }
                 }
                 .onFailure { e ->
                     _uiState.update {
                         it.copy(
-                            isLoadingStudents = false,
-                            error = e.message ?: "Failed to load students."
+                            isLoadingRecipients = false,
+                            error = e.message ?: "Failed to load recipients."
                         )
                     }
                 }
@@ -103,24 +103,24 @@ class SendNotificationViewModel @Inject constructor(
         _uiState.update { it.copy(searchQuery = query) }
     }
 
-    fun onStudentChecked(studentId: String, isChecked: Boolean) {
+    fun onRecipientChecked(userId: String, isChecked: Boolean) {
         _uiState.update { state ->
-            val updated = state.students.map { item ->
-                if (item.user.id == studentId) item.copy(isSelected = isChecked) else item
+            val updated = state.recipients.map { item ->
+                if (item.user.id == userId) item.copy(isSelected = isChecked) else item
             }
             state.copy(
-                students = updated,
-                filteredStudents = applyFilter(updated, state.searchQuery)
+                recipients = updated,
+                filteredRecipients = applyFilter(updated, state.searchQuery)
             )
         }
     }
 
     fun onSelectAllToggled(selectAll: Boolean) {
         _uiState.update { state ->
-            val updated = state.students.map { it.copy(isSelected = selectAll) }
+            val updated = state.recipients.map { it.copy(isSelected = selectAll) }
             state.copy(
-                students = updated,
-                filteredStudents = applyFilter(updated, state.searchQuery)
+                recipients = updated,
+                filteredRecipients = applyFilter(updated, state.searchQuery)
             )
         }
     }
@@ -135,7 +135,7 @@ class SendNotificationViewModel @Inject constructor(
                 .collectLatest { query ->
                     _uiState.update { state ->
                         state.copy(
-                            filteredStudents = applyFilter(state.students, query)
+                            filteredRecipients = applyFilter(state.recipients, query)
                         )
                     }
                 }
@@ -143,9 +143,9 @@ class SendNotificationViewModel @Inject constructor(
     }
 
     private fun applyFilter(
-        items: List<StudentSelectionItem>,
+        items: List<RecipientSelectionItem>,
         query: String
-    ): List<StudentSelectionItem> {
+    ): List<RecipientSelectionItem> {
         if (query.isBlank()) return items
         val lower = query.lowercase()
         return items.filter {
@@ -166,7 +166,7 @@ class SendNotificationViewModel @Inject constructor(
             val payload = NotificationPayload(
                 title = state.title.trim(),
                 message = state.message.trim(),
-                recipients = state.selectedStudents.map { it.user }
+                recipients = state.selectedRecipients.map { it.user }
             )
 
             val result = repository.sendNotification(payload)

@@ -6,11 +6,11 @@ import androidx.recyclerview.widget.DiffUtil
 import androidx.recyclerview.widget.ListAdapter
 import androidx.recyclerview.widget.RecyclerView
 import com.bookpalace.app.databinding.ItemStudentNotificationBinding
-import com.bookpalace.app.viewmodel.StudentSelectionItem
+import com.bookpalace.app.viewmodel.RecipientSelectionItem
 
 class StudentNotificationAdapter(
-    private val onCheckedChange: (studentId: String, isChecked: Boolean) -> Unit
-) : ListAdapter<StudentSelectionItem, StudentNotificationAdapter.StudentViewHolder>(DIFF_CALLBACK) {
+    private val onCheckedChange: (userId: String, isChecked: Boolean) -> Unit
+) : ListAdapter<RecipientSelectionItem, StudentNotificationAdapter.StudentViewHolder>(DIFF_CALLBACK) {
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): StudentViewHolder {
         val binding = ItemStudentNotificationBinding.inflate(
@@ -27,7 +27,7 @@ class StudentNotificationAdapter(
         private val binding: ItemStudentNotificationBinding
     ) : RecyclerView.ViewHolder(binding.root) {
 
-        fun bind(item: StudentSelectionItem) {
+        fun bind(item: RecipientSelectionItem) {
             val user = item.user
 
             binding.tvStudentName.text = user.name.ifBlank { "Unknown" }
@@ -59,15 +59,15 @@ class StudentNotificationAdapter(
     }
 
     companion object {
-        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<StudentSelectionItem>() {
+        private val DIFF_CALLBACK = object : DiffUtil.ItemCallback<RecipientSelectionItem>() {
             override fun areItemsTheSame(
-                oldItem: StudentSelectionItem,
-                newItem: StudentSelectionItem
+                oldItem: RecipientSelectionItem,
+                newItem: RecipientSelectionItem
             ) = oldItem.user.id == newItem.user.id
 
             override fun areContentsTheSame(
-                oldItem: StudentSelectionItem,
-                newItem: StudentSelectionItem
+                oldItem: RecipientSelectionItem,
+                newItem: RecipientSelectionItem
             ) = oldItem == newItem
         }
     }

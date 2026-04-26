@@ -58,10 +58,16 @@ dependencies {
     implementation(libs.androidx.cardview)
     implementation(libs.material)
     implementation(libs.androidx.legacy.support.v4)
+
+    // Firebase with BOM
+    implementation(platform(libs.firebase.bom))
     implementation(libs.firebase.database)
     implementation(libs.firebase.auth)
     implementation(libs.firebase.firestore)
     implementation(libs.firebase.functions)
+    implementation(libs.firebase.messaging)
+    implementation(libs.firebase.inappmessaging.display)
+
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
     implementation(libs.androidx.credentials)
@@ -72,7 +78,6 @@ dependencies {
     implementation(libs.androidx.lifecycle.livedata.ktx)
     implementation(libs.androidx.lifecycle.viewmodel.ktx)
     implementation(libs.androidx.fragment.ktx)
-    implementation(libs.firebase.inappmessaging.display)
 
     // Testing dependencies
     testImplementation(libs.junit)
